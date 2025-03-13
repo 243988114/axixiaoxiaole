@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿细的哈巴狗消消乐</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .game-container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .game-header div {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .game-header .message {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .game-board {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .block {
+            width: 100%;
+            padding-top: 100%; /* 保持方块为正方形 */
+            background-color: #ccc;
+            position: relative;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        .block.selected {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        .block img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+        }
+        .game-footer button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        .game-over p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 0;
+        }
+        .game-over button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .time-up {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        .time-up p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 0;
+        }
+        .time-up button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .difficulty-selector {
+            margin-bottom: 20px;
+        }
+        .difficulty-selector button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-title">阿细的哈巴狗消消乐</div>
+        <div class="difficulty-selector">
+            <button onclick="setDifficulty(4)">人机</button>
+            <button onclick="setDifficulty(6)">边境</button>
+            <button onclick="setDifficulty(8)">排位</button>
+        </div>
+        <div class="game-header">
+            <div>得分: <span id="score">0</span></div>
+            <div class="message" id="message"></div>
+            <div>时间: <span id="timer">0</span> 秒</div>
+        </div>
+        <div class="game-board" id="game-board">
+            <!-- 方块将通过 JavaScript 动态生成 -->
+        </div>
+        <div class="game-footer">
+            <button onclick="giveHint()">提示</button>
+            <button onclick="restartGame()">重新开始</button>
+        </div>
+    </div>
+    <div class="game-over" id="game-over">
+        <p id="game-over-text"></p>
+        <button onclick="restartGame()">继续</button>
+    </div>
+    <div class="time-up" id="time-up">
+        <p id="time-up-text"></p>
+        <button onclick="restartGame()">继续</button>
+    </div>
+
+    <script>
+        const dogImages = [
+            'https://placedog.net/80/80?random=1', // 随机狗狗图片
+            'https://placedog.net/80/80?random=2',
+            'https://placedog.net/80/80?random=3',
+            'https://placedog.net/80/80?random=4',
+            'https://placedog.net/80/80?random=5',
+            'https://placedog.net/80/80?random=6',
+            'https://placedog.net/80/80?random=7',
+            'https://placedog.net/80/80?random=8',
+            'https://placedog.net/80/80?random=9',
+            'https://placedog.net/80/80?random=10',
+            'https://placedog.net/80/80?random=11',
+            'https://placedog.net/80/80?random=12',
+            'https://placedog.net/80/80?random=13',
+            'https://placedog.net/80/80?random=14',
+            'https://placedog.net/80/80?random=15',
+            'https://placedog.net/80/80?random=16',
+            'https://placedog.net/80/80?random=17',
+            'https://placedog.net/80/80?random=18'
+        ];
+        let boardSize = 4; // 默认难度
+        let selectedBlocks = [];
+        let board = [];
+        let score = 0;
+        let timer = 0;
+        let timerInterval;
+        let moveInterval;
+        let difficulty = 1; // 默认难度级别
+        let timeUpInterval;
+
+        const matchMessages = [
+            'Man!', '给我叫起来！', '宝宝你好快啊', '宝宝你好有得啊', '紧凑给我死', '我头好晕啊'
+        ];
+        const mismatchMessages = [
+            '就这？', '没得', '你是小紧凑吧', '拉屎选手', '你是来搞笑的吧', '一把狗'
+        ];
+
+        function setDifficulty(size) {
+            boardSize = size;
+            difficulty = size / 2; // 难度级别
+            restartGame();
+        }
+
+        function createBoard() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+            board = [];
+
+            // 设置网格布局
+            gameBoard.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+            gameBoard.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
+
+            // 随机生成狗狗图片
+            const images = [];
+            for (let i = 0; i < (boardSize * boardSize) / 2; i++) {
+                const image = dogImages[i % dogImages.length];
+                images.push(image, image); // 每个图片出现两次
+            }
+            shuffleArray(images); // 打乱顺序
+
+            // 创建方块并添加到游戏板
+            images.forEach((image, index) => {
+                const block = document.createElement('div');
+                block.classList.add('block');
+                const img = document.createElement('img');
+                img.src = image;
+                block.appendChild(img);
+                block.addEventListener('click', () => selectBlock(index));
+                gameBoard.appendChild(block);
+                board.push(image);
+            });
+
+            // 启动方块移动
+            startBlockMovement();
+
+            // 启动时间到提示
+            startTimeUp();
+        }
+
+        function startBlockMovement() {
+            if (moveInterval) clearInterval(moveInterval);
+            moveInterval = setInterval(() => {
+                const blocks = document.querySelectorAll('.block:not([style*="opacity: 0"])');
+                blocks.forEach(block => {
+                    const x = Math.random() * 20 - 10; // 随机移动范围
+                    const y = Math.random() * 20 - 10;
+                    block.style.transform = `translate(${x}px, ${y}px)`;
+                });
+            }, 1000 / difficulty); // 移动速度随难度增加
+        }
+
+        function startTimeUp() {
+            if (timeUpInterval) clearTimeout(timeUpInterval);
+            let timeLimit;
+            switch (boardSize) {
+                case 4:
+                    timeLimit = 20000; // 人机难度：20秒
+                    break;
+                case 6:
+                    timeLimit = 50000; // 边境难度：50秒
+                    break;
+                case 8:
+                    timeLimit = 80000; // 排位难度：80秒
+                    break;
+                default:
+                    timeLimit = 20000;
+            }
+            timeUpInterval = setTimeout(() => {
+                showTimeUp();
+            }, timeLimit);
+        }
+
+        function showTimeUp() {
+            const timeUp = document.getElementById('time-up');
+            const timeUpText = document.getElementById('time-up-text');
+            let message;
+            switch (boardSize) {
+                case 4:
+                    message = '时间到，就这？没得！娱乐选手';
+                    break;
+                case 6:
+                    message = '时间到，你当年不行，现在你还是不行！';
+                    break;
+                case 8:
+                    message = '时间到，小紧凑给我死！';
+                    break;
+                default:
+                    message = '时间到，就这？没得！娱乐选手';
+            }
+            timeUpText.textContent = message;
+            timeUp.style.display = 'block';
+            clearInterval(timerInterval);
+            clearInterval(moveInterval);
+        }
+
+        function selectBlock(index) {
+            const block = document.getElementById('game-board').children[index];
+            if (selectedBlocks.length < 2 && !selectedBlocks.includes(index)) {
+                selectedBlocks.push(index);
+                block.classList.add('selected');
+
+                if (selectedBlocks.length === 2) {
+                    checkMatch();
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [index1, index2] = selectedBlocks;
+            const block1 = document.getElementById('game-board').children[index1];
+            const block2 = document.getElementById('game-board').children[index2];
+
+            if (board[index1] === board[index2]) {
+                // 匹配成功，消除方块
+                setTimeout(() => {
+                    block1.style.opacity = '0';
+                    block2.style.opacity = '0';
+                    block1.style.pointerEvents = 'none';
+                    block2.style.pointerEvents = 'none';
+                }, 500);
+
+                // 增加得分
+                score += 10;
+                document.getElementById('score').textContent = score;
+
+                // 显示随机提示词
+                showRandomMessage(matchMessages);
+
+                // 检查是否是最后两个方块
+                const remainingBlocks = document.querySelectorAll('.block:not([style*="opacity: 0"])');
+                if (remainingBlocks.length === 2) {
+                    clearInterval(timerInterval);
+                    clearInterval(moveInterval);
+                    clearTimeout(timeUpInterval); // 清除时间到提示
+                    showGameOver();
+                }
+            } else {
+                // 匹配失败，显示随机提示词
+                showRandomMessage(mismatchMessages);
+                setTimeout(() => {
+                    block1.classList.remove('selected');
+                    block2.classList.remove('selected');
+                }, 1000);
+            }
+
+            selectedBlocks = [];
+        }
+
+        function showRandomMessage(messages) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = messages[Math.floor(Math.random() * messages.length)];
+            setTimeout(() => {
+                messageElement.textContent = '';
+            }, 2000);
+        }
+
+        function giveHint() {
+            showRandomMessage(['张琳的哈巴狗，提示个毛啊！']);
+        }
+
+        function showGameOver() {
+            const gameOver = document.getElementById('game-over');
+            const gameOverText = document.getElementById('game-over-text');
+            gameOverText.innerHTML = `用时${timer}秒<br>好有感觉啊，又细又快，不愧是细狗！`;
+            gameOver.style.display = 'block';
+        }
+
+        function restartGame() {
+            const gameOver = document.getElementById('game-over');
+            const timeUp = document.getElementById('time-up');
+            gameOver.style.display = 'none';
+            timeUp.style.display = 'none';
+            score = 0;
+            timer = 0;
+            document.getElementById('score').textContent = score;
+            document.getElementById('timer').textContent = timer;
+            clearInterval(timerInterval);
+            clearInterval(moveInterval);
+            clearTimeout(timeUpInterval);
+            startTimer();
+            createBoard();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer++;
+                document.getElementById('timer').textContent = timer;
+            }, 1000);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 初始化游戏
+        createBoard();
+        startTimer();
+    </script>
+</body>
+</html>
