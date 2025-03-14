@@ -6,6 +6,44 @@
     <meta name="referrer" content="never"> <!-- 添加此行以解决 QQ 空间图片访问限制 -->
     <title>迷死他阿细消消乐</title>
     <style>
+        /* 新增弹窗样式 */
+        .welcome-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 1000;
+            width: 80%; /* 适应手机大小 */
+            max-width: 300px; /* 最大宽度 */
+        }
+        .welcome-modal p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .welcome-modal button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        /* 其他样式保持不变 */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -104,6 +142,10 @@
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             display: none;
+            width: 80%; /* 适应手机大小 */
+            max-width: 300px; /* 最大宽度 */
+			
+			
         }
         .game-over p {
             font-size: 24px;
@@ -165,6 +207,13 @@
     </style>
 </head>
 <body>
+    <!-- 新增弹窗 -->
+    <div class="overlay" id="overlay"></div>
+    <div class="welcome-modal" id="welcome-modal">
+        <p>作者：27群桃叔-机器人 <br>如有侵权请联系27群的狗管理 <br>作者VX：Z_HM0216，出来面对我！</p>
+        <button onclick="closeWelcomeModal()">确定</button>
+    </div>
+
     <div class="game-container">
         <div class="game-title">迷死她阿细消消乐</div>
         <div class="difficulty-selector">
@@ -195,10 +244,22 @@
     </div>
 
     <script>
+        // 新增弹窗关闭函数
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // 页面加载时显示弹窗
+        window.onload = function() {
+            document.getElementById('welcome-modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        };
+
         // 在这里填写你的 PNG 和 GIF 图片链接
         const images = [
             // PNG 图片
-            'https://thumbnail0.baidupcs.com/thumbnail/eb0a5a62aqa2d6b7286f8881d6163b4c?fid=4503601204341882-250528-714411497619270&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-TWY7grNjaIvuagCTo7pm%2B7MZQVg%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528251861612670933&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
+             'https://thumbnail0.baidupcs.com/thumbnail/eb0a5a62aqa2d6b7286f8881d6163b4c?fid=4503601204341882-250528-714411497619270&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-TWY7grNjaIvuagCTo7pm%2B7MZQVg%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528251861612670933&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
 'https://thumbnail0.baidupcs.com/thumbnail/bb6100202i2f83d2dc9de85975fe41d8?fid=4503601204341882-250528-625277372158797&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-bxMLUaJMiSLzFmZ2l4mR%2F5FUOog%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528264421754901575&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
 'https://thumbnail0.baidupcs.com/thumbnail/c9a5e7d47q9985b3fee78d3c595056f3?fid=4503601204341882-250528-217285653305322&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-HLoZaSZQmFlO9KKH41XtgY1MJOI%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528273806825079784&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
 'https://thumbnail0.baidupcs.com/thumbnail/995de4294nd4fb00a9d35a1e894fd0a6?fid=4503601204341882-250528-361973849729444&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-%2FB6jdqbAZuGaE%2BaFbmmwW2BlNYM%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528294451185284066&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
@@ -223,7 +284,6 @@
 'https://thumbnail0.baidupcs.com/thumbnail/fe398e572o974d2973b41eb92d77c65f?fid=4503601204341882-250528-278249981575996&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-sAP80sOmerR4OKc%2Br%2Ff9t6emA78%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528359874268309532&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
 'https://thumbnail0.baidupcs.com/thumbnail/28a8df1bfkb98982f14e8dd1470952c0?fid=4503601204341882-250528-479397307961071&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-WzlTiGAhFPh5zXa7N7D%2FtyU4COw%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528363225798664304&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
 'https://thumbnail0.baidupcs.com/thumbnail/83ae45671h8800932aaab409aedd7ecb?fid=4503601204341882-250528-1039059949551145&time=1741921200&rt=sh&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-VUk4YMjzG3mQH21aQOwJwBnzOvQ%3D&expires=8h&chkv=0&chkbd=0&chkpc=&dp-logid=528365838580974716&dp-callid=0&file_type=0&size=c710_u400&quality=100&vuk=-&ft=video',
-            // GIF 图片
             // 更多图片...
         ];
 
