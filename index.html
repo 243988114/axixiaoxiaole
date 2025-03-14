@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>阿细的哈巴狗消消乐</title>
+    <title>迷死他阿细消消乐</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -165,7 +165,7 @@
 </head>
 <body>
     <div class="game-container">
-        <div class="game-title">阿细的哈巴狗消消乐</div>
+        <div class="game-title">迷死她阿细消消乐</div>
         <div class="difficulty-selector">
             <button onclick="setDifficulty(4)">人机</button>
             <button onclick="setDifficulty(6)">边境</button>
@@ -174,7 +174,7 @@
         <div class="game-header">
             <div>得分: <span id="score">0</span></div>
             <div class="message" id="message"></div>
-            <div>时间: <span id="timer">0</span> 秒</div>
+            <div>时间: <span id="countdown">0</span> 秒</div>
         </div>
         <div class="game-board" id="game-board">
             <!-- 方块将通过 JavaScript 动态生成 -->
@@ -194,35 +194,49 @@
     </div>
 
     <script>
-        const dogImages = [
-            'https://placedog.net/80/80?random=1', // 随机狗狗图片
-            'https://placedog.net/80/80?random=2',
-            'https://placedog.net/80/80?random=3',
-            'https://placedog.net/80/80?random=4',
-            'https://placedog.net/80/80?random=5',
-            'https://placedog.net/80/80?random=6',
-            'https://placedog.net/80/80?random=7',
-            'https://placedog.net/80/80?random=8',
-            'https://placedog.net/80/80?random=9',
-            'https://placedog.net/80/80?random=10',
-            'https://placedog.net/80/80?random=11',
-            'https://placedog.net/80/80?random=12',
-            'https://placedog.net/80/80?random=13',
-            'https://placedog.net/80/80?random=14',
-            'https://placedog.net/80/80?random=15',
-            'https://placedog.net/80/80?random=16',
-            'https://placedog.net/80/80?random=17',
-            'https://placedog.net/80/80?random=18'
+        // 在这里填写你的 PNG 和 GIF 图片链接
+        const images = [
+            // PNG 图片
+            'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SR01pW7hLJ.xlpiN*uLN4Wb.37w20FAW*s6OiVzcocREVvEO9dNN6SsOLHFWkfmQ0aaW.XyLLZtYyw7hOAlooWU!/b&bo=LAEsAQAAAAACNxM!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SbMl1SQswP7hklwZ*wIqEXYAQk*ZNNvr7bSArwLqq0RXl.w2RTq8dSNEnMJLyz*308m08DUItV.8rY7IgCMM8Og!/b&bo=*gDwAAAAAAACR20!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SZlgqoenVxPbevNWyiwGlOOZZQC5kpOehILX1G77LNc9USKWxZXQGOTqp9shC8SGdCyxj*1DYe*cPJKOy3PyJ*M!/b&bo=LAEsAQAAAAACByM!&rf=viewer_4&t=5',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SZlNZJ6pQV8.xMy6d7KRuhi5xLEBQ*oj0YukYTBXLdcZ23ZmOBJyWRo8paV8*Zlmy6HvCqyd9zJjZ4wR.EK*e4w!/b&bo=kAGuAQAAAAACFw0!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SViLSxw7LTgwHRvQGxgnpT*3SFxgiIpPz0SqN.K0yfpVza.Mn*JvdSTVPeYRQaPv5EYxFd50fjA.kLBLPl4soSk!/b&bo=9gAsAQAAAAACV6g!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SUPYkLW95hhUpFbZAWQIt.p7emoCech2NnxOt72d5vSsCO2S4HrxTkCG7LaU.6Phzk0bcgh4.642W9XyCvrLIjw!/b&bo=5wGAAgAAAAACF1c!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SYwSc.4TLgxsvkWzMmjvp2BM*K.23UqmLUZybBt2J1nXap3981ktCZGS8f9hmKuICXeTO7aA8BULZGunZCt5LzU!/b&bo=YAKAAgAAAAACF9M!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*STqI*42tanKYBp35ha1NiGoRmOLOn3a1HCPHmGlpZNn4jAg1IUNkl2c7dHmxhYyZxY4DwI1HJ1eFvCWt*F4vLOc!/b&bo=LAEsAQAAAAACFzM!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SctvaMESHO3ycdRVwTVi*a8tpnjqO7Dv2ya24VtO0L2T4jttstKZRIIOOjaz.gmOKmmo35qhEhiA77HIBo1.v6M!/b&bo=JwEoAQAAAAACZ0w!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SZXMDx23IwmcVXkooQWq9neoMyCgxBKETpAqHwrEQwfIW9dILaPHe.TYDPF2xUYb2d.hkM2hhv4T1YkKp6gJXzs!/b&bo=LAH7AAAAAAACF.U!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*STthNU8toBXBOt*4RWeX.*F3RiQKy4axXT2xRYKBSjunhvlRzEOWe0MQ8IvWf0ujqCaf.gQSokaCkV4moBK7xBs!/b&bo=LAHIAAAAAAACZ6Y!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SUqcxIMr87En7BnLvNIyxbFKUNl2FcbDiCSaOnSJHLNGlBmYuunM4p9QfdOwRRqVG2z339Vb74YrJklKAigTIvw!/b&bo=LAEsAQAAAAACd1M!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*Secjc7A9od0jxIMfevGJ3c4HywCb6*d8G*Z.OE2x1DeJHKuZgUmMVsPuLEHwziA3PZ6t9qNGPqtt4Dj5egkewfA!/b&bo=gALVAQAAAAACF2U!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SZYrtc.1qJfLnAdygVVjLQIy*xmSHNpXk9vmb78epm0ttndCrx7nT4CsJSvIaNorXP96D50mPTrMivsYZzsQriI!/b&bo=LAEsAQAAAAACd1M!&rf=viewer_4&t=5',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SdtH2eCRTCkbIyCctqiV4dekYg0rvfl96L*ahf6rnp5gvW5irGmiCTpvDGL9DAWdKc8cI.EYPyFKDg1V6m6bIc0!/b&bo=LAEsAQAAAAACh6M!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SZ.E4iqC5zXC8y1NT5MPyfFiJRdNA669t4Z1EZfNbzhy1jUu7yklJrVmpApr8CEGEGRxzzffrhoTuPe0t6kmmBo!/b&bo=aAFZAQAAAAACFwI!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*Sa7VJYK3f3wZtUKWnH1yxbzCkoV9aLUfgTXSeF16jXFYan65uWrE6OIUU6sxzc8yrvA0eQDVEJiofoE3M*CTWzA!/b&bo=8AA*AQAAAAACV70!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SccCUDlijPYK0IRoSuNG6t5gFXYREpIsb7ZnR.HcWkFbkX1ry.Y5WwDIVYKArkOqUUs36NA*6JCYfZHjiVPY6y0!/b&bo=LAEsAQAAAAACV3M!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SU*I3B48KHUNVxMFhX.QhLIlpXPgd4srcqYGFhjqmmWholGnEdSRdLRzHOcY9JKpPee1IcQznttzalF5MmgF*8M!/b&bo=mAGHAQAAAAACFyw!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*Sc0rvj5fXiwsuctZvrWzbR6Fr8limjs*lTfU0JWFMsHnwCDKmu8BR6Man1z74IbciO3SmJf0DOOQptjSyRHGLv8!/b&bo=LAEsAQAAAAACR2M!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*Sd284fZkH6aS6VrgiU9cRWaTmCMul2OW*BlVtnfmu.aHIwvNtJZ.qoARTX0OgqCypuCEUBBvtGtw5Zk4YtFBi*Q!/b&bo=uQC.AAAAAAACFzQ!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*STIU6*QVIKO53NRg*fMQfppZ2ll32Er4ebRoeCYOhvnqmK*a7NEdlfcTCsg7XDwcAKRyzAw37UxHR.SpfM4XV5M!/b&bo=LAEiAQAAAAACFz0!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SYZ7Bze*JW3HzKmXh0DwC3d9BxDm1Zq1LkbI2V1JwbFbCZyqzFSTsm08UORfMwKNZyKDZaOAW2xVVX*cEhNFzDc!/b&bo=QAFAAQAAAAACZ0M!&rf=viewer_4',
+'http://m.qpic.cn/psc?/V51HcJmd4TYtNX4QTajn28Bytn0hLkOI/LiySpxowE0yeWXwBdXN*SS3qVqBZHkaaRup5wl6uIQz6Mg*bxLW5QwrxU1SYcyVLZShXEnltDC*1xmDytAoPkbY0786RvSVoUVRFNIWzPG8!/b&bo=pgH3AQAAAAACF2I!&rf=viewer_4',
+            // GIF 图片
+            // 更多图片...
         ];
+
         let boardSize = 4; // 默认难度
         let selectedBlocks = [];
         let board = [];
         let score = 0;
-        let timer = 0;
+        let countdown = 0; // 倒计时
+        let elapsedTime = 0; // 实际用时
         let timerInterval;
+        let countdownInterval;
         let moveInterval;
         let difficulty = 1; // 默认难度级别
         let timeUpInterval;
+        let isFirstClick = true; // 是否第一次点击方块
 
         const matchMessages = [
             'Man!', '给我叫起来！', '宝宝你好快啊', '宝宝你好有得啊', '紧凑给我死', '我头好晕啊'
@@ -246,16 +260,16 @@
             gameBoard.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
             gameBoard.style.gridTemplateRows = `repeat(${boardSize}, 1fr)`;
 
-            // 随机生成狗狗图片
-            const images = [];
+            // 随机生成图片
+            const imagePairs = [];
             for (let i = 0; i < (boardSize * boardSize) / 2; i++) {
-                const image = dogImages[i % dogImages.length];
-                images.push(image, image); // 每个图片出现两次
+                const image = images[i % images.length];
+                imagePairs.push(image, image); // 每个图片出现两次
             }
-            shuffleArray(images); // 打乱顺序
+            shuffleArray(imagePairs); // 打乱顺序
 
             // 创建方块并添加到游戏板
-            images.forEach((image, index) => {
+            imagePairs.forEach((image, index) => {
                 const block = document.createElement('div');
                 block.classList.add('block');
                 const img = document.createElement('img');
@@ -269,8 +283,21 @@
             // 启动方块移动
             startBlockMovement();
 
-            // 启动时间到提示
-            startTimeUp();
+            // 初始化倒计时
+            switch (boardSize) {
+                case 4:
+                    countdown = 20; // 人机难度：20秒
+                    break;
+                case 6:
+                    countdown = 50; // 边境难度：50秒
+                    break;
+                case 8:
+                    countdown = 120; // 排位难度：120秒
+                    break;
+                default:
+                    countdown = 20;
+            }
+            document.getElementById('countdown').textContent = countdown;
         }
 
         function startBlockMovement() {
@@ -285,25 +312,21 @@
             }, 1000 / difficulty); // 移动速度随难度增加
         }
 
-        function startTimeUp() {
-            if (timeUpInterval) clearTimeout(timeUpInterval);
-            let timeLimit;
-            switch (boardSize) {
-                case 4:
-                    timeLimit = 20000; // 人机难度：20秒
-                    break;
-                case 6:
-                    timeLimit = 50000; // 边境难度：50秒
-                    break;
-                case 8:
-                    timeLimit = 80000; // 排位难度：80秒
-                    break;
-                default:
-                    timeLimit = 20000;
-            }
-            timeUpInterval = setTimeout(() => {
-                showTimeUp();
-            }, timeLimit);
+        function startTimers() {
+            // 启动倒计时
+            countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdown').textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    showTimeUp();
+                }
+            }, 1000);
+
+            // 启动实际用时计时器
+            timerInterval = setInterval(() => {
+                elapsedTime++;
+            }, 1000);
         }
 
         function showTimeUp() {
@@ -330,6 +353,11 @@
         }
 
         function selectBlock(index) {
+            if (isFirstClick) {
+                isFirstClick = false;
+                startTimers(); // 第一次点击方块后启动计时器
+            }
+
             const block = document.getElementById('game-board').children[index];
             if (selectedBlocks.length < 2 && !selectedBlocks.includes(index)) {
                 selectedBlocks.push(index);
@@ -366,6 +394,7 @@
                 const remainingBlocks = document.querySelectorAll('.block:not([style*="opacity: 0"])');
                 if (remainingBlocks.length === 2) {
                     clearInterval(timerInterval);
+                    clearInterval(countdownInterval);
                     clearInterval(moveInterval);
                     clearTimeout(timeUpInterval); // 清除时间到提示
                     showGameOver();
@@ -391,13 +420,13 @@
         }
 
         function giveHint() {
-            showRandomMessage(['张琳的哈巴狗，提示个毛啊！']);
+            showRandomMessage(['桃叔-机器人创作，提示个毛啊！']);
         }
 
         function showGameOver() {
             const gameOver = document.getElementById('game-over');
             const gameOverText = document.getElementById('game-over-text');
-            gameOverText.innerHTML = `用时${timer}秒<br>好有感觉啊，又细又快，不愧是细狗！`;
+            gameOverText.innerHTML = `用时${elapsedTime}秒<br>好有感觉啊，又细又快，不愧是细狗！`;
             gameOver.style.display = 'block';
         }
 
@@ -407,21 +436,14 @@
             gameOver.style.display = 'none';
             timeUp.style.display = 'none';
             score = 0;
-            timer = 0;
+            elapsedTime = 0;
+            isFirstClick = true;
             document.getElementById('score').textContent = score;
-            document.getElementById('timer').textContent = timer;
             clearInterval(timerInterval);
+            clearInterval(countdownInterval);
             clearInterval(moveInterval);
             clearTimeout(timeUpInterval);
-            startTimer();
             createBoard();
-        }
-
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timer++;
-                document.getElementById('timer').textContent = timer;
-            }, 1000);
         }
 
         function shuffleArray(array) {
@@ -433,7 +455,6 @@
 
         // 初始化游戏
         createBoard();
-        startTimer();
     </script>
 </body>
 </html>
